@@ -17,6 +17,29 @@ SDL_Renderer *renderer;    // The renderer SDL will use to draw to the screen
 
 // textures
 SDL_Texture *screen_texture;
+
+static void draw_gradient()
+{
+    SDL_Rect src;
+    src.x = 0;
+    src.y = 0;
+    src.h = SCREEN_HEIGHT/40;
+    int iterations = 0;
+    while (src.y <= SCREEN_HEIGHT)
+    {
+        Uint32 colorkey = SDL_MapRGB(screen->format, 140 - (iterations * 3), 200 - (iterations * 3), 220 - (iterations * 3));
+        src.w = SCREEN_WIDTH;
+        int r = SDL_FillRect(screen, &src, colorkey);
+
+        if (r != 0)
+        {
+
+            printf("fill gradient faliled in func drawball()");
+        }
+        src.y += SCREEN_HEIGHT/40;
+        iterations++;
+    }
+}
 static void draw_menu()
 {
     SDL_Rect src;
@@ -127,10 +150,15 @@ int init(int width, int height, int argc, char *args[])
         return 1;
     }
 
+    draw_gradient();
+    // SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+
+    // // Clear the entire screen to our selected color.
+    // SDL_RenderClear(renderer);
     // Set the title colourkey.
-    Uint32 colorkey = SDL_MapRGB(title->format, 255, 0, 255);
-    SDL_SetColorKey(title, SDL_TRUE, colorkey);
-    SDL_SetColorKey(numbermap, SDL_TRUE, colorkey);
+    // Uint32 colorkey = SDL_MapRGB(title->format, 12, 0, 255);
+    // SDL_SetColorKey(title, SDL_TRUE, colorkey);
+    // SDL_SetColorKey(numbermap, SDL_TRUE, colorkey);
 
     return 0;
 }
@@ -151,7 +179,7 @@ int main(int argc, char *args[])
 
     SDL_PumpEvents();
 
-    draw_menu();
+    // draw_menu();
 
     SDL_UpdateTexture(screen_texture, NULL, screen->pixels, screen->w * sizeof(Uint32));
     SDL_RenderCopy(renderer, screen_texture, NULL, NULL);

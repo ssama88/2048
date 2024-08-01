@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
+#include <stdbool.h>
 
 #define SCREEN_WIDTH 640  // window height
 #define SCREEN_HEIGHT 480 // window widt
@@ -17,6 +18,7 @@ SDL_Renderer *renderer;    // The renderer SDL will use to draw to the screen
 
 // textures
 SDL_Texture *screen_texture;
+int gameState[4][4] = {{0,0,2,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}};
 
 static void draw_gradient()
 {
@@ -85,6 +87,7 @@ static void draw_board()
             printf("fill gradient faliled in func drawball()");
         }
     }
+    
 }
 
 int init(int width, int height, int argc, char *args[])
@@ -167,16 +170,31 @@ int main(int argc, char *args[])
     Uint32 next_game_tick = SDL_GetTicks();
 
     SDL_PumpEvents();
-    
+
     // draw_menu();
     draw_board();
-    SDL_UpdateTexture(screen_texture, NULL, screen->pixels, screen->w * sizeof(Uint32));
-    SDL_RenderCopy(renderer, screen_texture, NULL, NULL);
+    bool keep_window_open = true;
+    SDL_Event e;
+    while (keep_window_open)
+    {
+        while (SDL_PollEvent(&e) > 0)
+        {
+            switch (e.type)
+            {
+            case SDL_QUIT:
+                keep_window_open = false;
+                break;
+            }
+            SDL_UpdateTexture(screen_texture, NULL, screen->pixels, screen->w * sizeof(Uint32));
+            SDL_RenderCopy(renderer, screen_texture, NULL, NULL);
+            // draw to the display
+            SDL_RenderPresent(renderer);
+            SDL_Delay(20);
+        }
+        SDL_Delay(20); 
 
-    // draw to the display
-    SDL_RenderPresent(renderer);
+    }
 
-    SDL_Delay(10000);
     // free loaded images
     SDL_FreeSurface(screen);
     SDL_FreeSurface(title);

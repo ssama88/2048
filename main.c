@@ -23,7 +23,7 @@ static void draw_gradient()
     SDL_Rect src;
     src.x = 0;
     src.y = 0;
-    src.h = SCREEN_HEIGHT/40;
+    src.h = SCREEN_HEIGHT / 40;
     int iterations = 0;
     while (src.y <= SCREEN_HEIGHT)
     {
@@ -36,27 +36,46 @@ static void draw_gradient()
 
             printf("fill gradient faliled in func drawball()");
         }
-        src.y += SCREEN_HEIGHT/40;
+        src.y += SCREEN_HEIGHT / 40;
         iterations++;
     }
 }
-static void draw_menu()
+static void draw_board()
 {
-    SDL_Rect src;
-    SDL_Rect dest;
+    SDL_Rect board;
+    board.x = SCREEN_WIDTH / 2 - 175;
+    board.y = SCREEN_HEIGHT / 2 - 175;
+    board.h = 350;
+    board.w = 350;
+    Uint32 colorkey = SDL_MapRGB(screen->format, 255, 0, 0);
+    int r = SDL_FillRect(screen, &board, colorkey);
 
-    src.x = 0;
-    src.y = 0;
-    src.w = title->w;
-    src.h = title->h;
+    if (r != 0)
+    {
 
-    dest.x = (screen->w / 2) - (src.w / 2);
-    dest.y = (screen->h / 2) - (src.h / 2);
-    dest.w = title->w;
-    dest.h = title->h;
+        printf("fill gradient faliled in func drawball()");
+    }
+    SDL_Rect tile;
 
-    SDL_BlitSurface(title, &src, screen, &dest);
+    for (int i = 0; i < 16; i++)
+    {
+        int xBuffer = i % 4;
+        int yBuffer = i / 4;
+        tile.x = board.x + (75 * xBuffer) + (10 * (xBuffer + 1));
+        tile.y = board.y + (75 * yBuffer) + (10 * (yBuffer + 1));
+
+        tile.h = 75;
+        tile.w = 75;
+        Uint32 tileColor = SDL_MapRGB(screen->format, 0, 255 - (15 * i), 0);
+        int z = SDL_FillRect(screen, &tile, tileColor);
+        if (z != 0)
+        {
+
+            printf("fill gradient faliled in func drawball()");
+        }
+    }
 }
+
 int init(int width, int height, int argc, char *args[])
 {
 
@@ -117,48 +136,7 @@ int init(int width, int height, int argc, char *args[])
         return 1;
     }
 
-    // Load the title image
-    title = SDL_LoadBMP("title.bmp");
-
-    if (title == NULL)
-    {
-
-        printf("Could not Load title image! SDL_Error: %s\n", SDL_GetError());
-
-        return 1;
-    }
-
-    // Load the numbermap image
-    numbermap = SDL_LoadBMP("numbermap.bmp");
-
-    if (numbermap == NULL)
-    {
-
-        printf("Could not Load numbermap image! SDL_Error: %s\n", SDL_GetError());
-
-        return 1;
-    }
-
-    // Load the gameover image
-    end = SDL_LoadBMP("gameover.bmp");
-
-    if (end == NULL)
-    {
-
-        printf("Could not Load title image! SDL_Error: %s\n", SDL_GetError());
-
-        return 1;
-    }
-
-    draw_gradient();
-    // SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-
-    // // Clear the entire screen to our selected color.
-    // SDL_RenderClear(renderer);
-    // Set the title colourkey.
-    // Uint32 colorkey = SDL_MapRGB(title->format, 12, 0, 255);
-    // SDL_SetColorKey(title, SDL_TRUE, colorkey);
-    // SDL_SetColorKey(numbermap, SDL_TRUE, colorkey);
+    // draw_gradient();
 
     return 0;
 }
@@ -180,7 +158,7 @@ int main(int argc, char *args[])
     SDL_PumpEvents();
 
     // draw_menu();
-
+    draw_board();
     SDL_UpdateTexture(screen_texture, NULL, screen->pixels, screen->w * sizeof(Uint32));
     SDL_RenderCopy(renderer, screen_texture, NULL, NULL);
 

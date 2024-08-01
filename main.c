@@ -42,12 +42,23 @@ static void draw_gradient()
 }
 static void draw_board()
 {
+    SDL_Rect background;
+    background.h = SCREEN_HEIGHT;
+    background.w = SCREEN_WIDTH;
+    background.x = 0;
+    background.y = 0;
+    int t = SDL_FillRect(screen, &background, 0xffffffff);
+    if (t != 0)
+    {
+
+        printf("fill background faliled in func drawball()");
+    }
     SDL_Rect board;
     board.x = SCREEN_WIDTH / 2 - 175;
     board.y = SCREEN_HEIGHT / 2 - 175;
     board.h = 350;
     board.w = 350;
-    Uint32 colorkey = SDL_MapRGB(screen->format, 255, 0, 0);
+    Uint32 colorkey = SDL_MapRGB(screen->format, 187, 173, 160);
     int r = SDL_FillRect(screen, &board, colorkey);
 
     if (r != 0)
@@ -66,7 +77,7 @@ static void draw_board()
 
         tile.h = 75;
         tile.w = 75;
-        Uint32 tileColor = SDL_MapRGB(screen->format, 0, 255 - (15 * i), 0);
+        Uint32 tileColor = SDL_MapRGB(screen->format, 238, 228, 218);
         int z = SDL_FillRect(screen, &tile, tileColor);
         if (z != 0)
         {
@@ -156,7 +167,7 @@ int main(int argc, char *args[])
     Uint32 next_game_tick = SDL_GetTicks();
 
     SDL_PumpEvents();
-
+    
     // draw_menu();
     draw_board();
     SDL_UpdateTexture(screen_texture, NULL, screen->pixels, screen->w * sizeof(Uint32));

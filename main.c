@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <stdbool.h>
-
+#include <SDL_ttf.h>
 #define SCREEN_WIDTH 640  // window height
 #define SCREEN_HEIGHT 480 // window widt
 
@@ -18,7 +18,7 @@ SDL_Renderer *renderer;    // The renderer SDL will use to draw to the screen
 
 // textures
 SDL_Texture *screen_texture;
-int gameState[4][4] = {{0,0,2,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}};
+int gameState[4][4] = {{0, 0, 2, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
 
 static void draw_gradient()
 {
@@ -42,6 +42,54 @@ static void draw_gradient()
         iterations++;
     }
 }
+
+static void draw_text()
+{
+    TTF_Init();
+
+    // this opens a font style and sets a size
+    TTF_Font *Sans = TTF_OpenFont("font.ttf", 14);
+    if (Sans == NULL)
+    {
+        printf("TTF_Init: %s\n", TTF_GetError());
+        return;
+    }
+    SDL_Color black = {125, 125, 125};
+    SDL_Surface *surfaceMessage =
+        TTF_RenderText_Solid(Sans, "2048", black);
+
+    // now you can convert it into a texture
+    SDL_Texture *Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+
+    SDL_Rect Message_rect; // create a rect
+    Message_rect.x = SCREEN_WIDTH / 2 - 175 + 10;    // controls the rect's x coordinate
+    Message_rect.y = SCREEN_HEIGHT / 2 - 175;    // controls the rect's y coordinte
+    Message_rect.w = 75;   // controls the width of the rect
+    Message_rect.h = 75;   // controls the height of the rect
+
+    Uint32 tileColor = SDL_MapRGB(screen->format, 255, 255, 255);
+
+    // SDL_FillRect(screen, &Message_rect, tileColor);
+    // (0,0) is on the top left of the window/screen,
+    // think a rect as the text's box,
+    // that way it would be very simple to understand
+
+    // Now since it's a texture, you have to put RenderCopy
+    // in your game loop area, the area where the whole code executes
+
+    SDL_UpdateTexture(screen_texture, NULL, screen->pixels, screen->w * sizeof(Uint32));
+
+    // you put the renderer's name first, the Message,
+    // the crop size (you can ignore this if you don't want
+    // to dabble with cropping), and the rect which is the size
+    // and coordinate of your texture
+
+    SDL_RenderCopy(renderer, Message, NULL, &Message_rect);
+    // Don't forget to free your surface and texture
+    // SDL_FreeSurface(surfaceMessage);
+    // SDL_DestroyTexture(Message);
+}
+
 static void draw_board()
 {
     SDL_Rect background;
@@ -87,7 +135,8 @@ static void draw_board()
             printf("fill gradient faliled in func drawball()");
         }
     }
-    
+    SDL_UpdateTexture(screen_texture, NULL, screen->pixels, screen->w * sizeof(Uint32));
+    SDL_RenderCopy(renderer, screen_texture, NULL, NULL);
 }
 
 int init(int width, int height, int argc, char *args[])
@@ -172,9 +221,9 @@ int main(int argc, char *args[])
     SDL_PumpEvents();
 
     // draw_menu();
-    draw_board();
     bool keep_window_open = true;
     SDL_Event e;
+
     while (keep_window_open)
     {
         while (SDL_PollEvent(&e) > 0)
@@ -185,14 +234,15 @@ int main(int argc, char *args[])
                 keep_window_open = false;
                 break;
             }
-            SDL_UpdateTexture(screen_texture, NULL, screen->pixels, screen->w * sizeof(Uint32));
-            SDL_RenderCopy(renderer, screen_texture, NULL, NULL);
+            draw_board();
+
+            draw_text();
+
             // draw to the display
             SDL_RenderPresent(renderer);
-            SDL_Delay(20);
+            SDL_Delay(50);
         }
-        SDL_Delay(20); 
-
+        SDL_Delay(50);
     }
 
     // free loaded images

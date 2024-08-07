@@ -18,7 +18,7 @@ SDL_Renderer *renderer;    // The renderer SDL will use to draw to the screen
 
 // textures
 SDL_Texture *screen_texture;
-int gameState[4][4] = {{0, 0, 2, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
+int gameState[4][4] = {{2, 0, 2, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
 
 static void draw_gradient()
 {
@@ -55,8 +55,15 @@ static void draw_text(char string[], SDL_Rect rect)
         return;
     }
     SDL_Color black = {125, 125, 125};
-    SDL_Surface *surfaceMessage =
-        TTF_RenderText_Solid(Sans, string, black);
+    SDL_Surface *surfaceMessage;
+    if (string[0] == '0')
+    {
+        surfaceMessage = TTF_RenderText_Solid(Sans, "", black);
+    }
+    else
+    {
+        surfaceMessage = TTF_RenderText_Solid(Sans, string, black);
+    }
 
     // now you can convert it into a texture
     SDL_Texture *Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
@@ -144,7 +151,7 @@ static void draw_numbers()
         Message_rect.w = 75;                                                                // controls the width of the rect
         Message_rect.h = 75;                                                                // controls the height of the rect
 
-        draw_text(convert_int_to_string(1024), Message_rect);
+        draw_text(convert_int_to_string(gameState[yBuffer][xBuffer]), Message_rect);
     }
 }
 
@@ -212,6 +219,35 @@ int init(int width, int height, int argc, char *args[])
 
     return 0;
 }
+
+static void moveLeft()
+{
+    for (int i = 0; i < 4; i++)
+    {
+        int comparisonPos = 0;
+        int emptyPos = 0;
+        for (int j = 1; j < 4; j++)
+        {
+            if (gameState[i][j] == 0)
+            {
+                continue;
+            }
+            else if (gameState[i][j] == gameState[i][comparisonPos])
+            {
+                gameState[i][comparisonPos] = gameState[i][j] * 2;
+                gameState[i][j] = 0;
+                comparisonPos += 1;
+                emptyPos++;
+            }
+            else
+            {
+                gameState[i][emptyPos] = gameState[i][j];
+                gameState[i][j] = 0;
+                emptyPos++;
+            }
+        }
+    }
+}
 int main(int argc, char *args[])
 {
     if (init(SCREEN_WIDTH, SCREEN_HEIGHT, argc, args) == 1)
@@ -242,6 +278,15 @@ int main(int argc, char *args[])
             case SDL_QUIT:
                 keep_window_open = false;
                 break;
+            }
+
+            if (e.type == SDL_KEYDOWN)
+            {
+                switch (e.key.keysym.sym)
+                {
+                case SDLK_LEFT:
+                    moveLeft();
+                }
             }
             draw_board();
             draw_tiles();

@@ -18,7 +18,7 @@ SDL_Renderer *renderer;    // The renderer SDL will use to draw to the screen
 
 // textures
 SDL_Texture *screen_texture;
-int gameState[4][4] = {{4, 4, 2, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
+int gameState[4][4] = {{2, 0, 2, 0}, {2, 0, 0, 0}, {0, 0, 2, 0}, {2, 0, 0, 0}};
 
 static void draw_gradient()
 {
@@ -236,7 +236,7 @@ static void moveLeft()
             {
                 gameState[i][comparisonPos] = gameState[i][j] * 2;
                 gameState[i][j] = 0;
-                comparisonPos += 1;
+                comparisonPos++;
                 emptyPos++;
             }
             else if (gameState[i][emptyPos] != 0) // if the number in the emptyPos doesn't equal the current number leave the current numberin it's current position
@@ -253,6 +253,71 @@ static void moveLeft()
     }
 }
 
+static void moveUp()
+{
+    for (int i = 0; i < 4; i++)
+    {
+        int comparisonPos = 0;
+        int emptyPos = 0;
+        for (int j = 1; j < 4; j++)
+        {
+            if (gameState[j][i] == 0)
+            {
+                continue;
+            }
+            else if (gameState[j][i] == gameState[comparisonPos][i])
+            {
+                gameState[comparisonPos][i] = gameState[j][i] * 2;
+                gameState[j][i] = 0;
+                comparisonPos++;
+                emptyPos++;
+            }
+            else if (gameState[emptyPos][i] != 0)
+            {
+                continue;
+            }
+            else
+            {
+                gameState[emptyPos][i] = gameState[j][i];
+                gameState[j][i] = 0;
+                emptyPos++;
+            }
+        }
+    }
+}
+
+static void moveDown()
+{
+    for (int i = 0; i < 4; i++)
+    {
+        int comparisonPos = 3;
+        int emptyPos = 3;
+        for (int j = 2; j >= 0; j--)
+        {
+            if (gameState[j][i] == 0)
+            {
+                continue;
+            }
+            else if (gameState[j][i] == gameState[comparisonPos][i])
+            {
+                gameState[comparisonPos][i] = gameState[j][i] * 2;
+                gameState[j][i] = 0;
+                comparisonPos--;
+                emptyPos--;
+            }
+            else if (gameState[emptyPos][i] != 0)
+            {
+                continue;
+            }
+            else
+            {
+                gameState[emptyPos][i] = gameState[j][i];
+                gameState[j][i] = 0;
+                emptyPos--;
+            }
+        }
+    }
+}
 static void moveRight()
 {
     for (int i = 0; i < 4; i++)
@@ -327,6 +392,11 @@ int main(int argc, char *args[])
                 case SDLK_RIGHT:
                     moveRight();
                     break;
+                case SDLK_UP:
+                    moveUp();
+                    break;
+                case SDLK_DOWN:
+                    moveDown();
                 }
             }
             draw_board();

@@ -18,7 +18,7 @@ SDL_Renderer *renderer;    // The renderer SDL will use to draw to the screen
 
 // textures
 SDL_Texture *screen_texture;
-int gameState[4][4] = {{2, 0, 2, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
+int gameState[4][4] = {{4, 4, 2, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
 
 static void draw_gradient()
 {
@@ -239,11 +239,48 @@ static void moveLeft()
                 comparisonPos += 1;
                 emptyPos++;
             }
+            else if (gameState[i][emptyPos] != 0) // if the number in the emptyPos doesn't equal the current number leave the current numberin it's current position
+            {
+                continue;
+            }
             else
             {
                 gameState[i][emptyPos] = gameState[i][j];
                 gameState[i][j] = 0;
                 emptyPos++;
+            }
+        }
+    }
+}
+
+static void moveRight()
+{
+    for (int i = 0; i < 4; i++)
+    {
+        int comparisonPos = 3;
+        int emptyPos = 3;
+        for (int j = 2; j >= 0; j--)
+        {
+            if (gameState[i][j] == 0)
+            {
+                continue;
+            }
+            else if (gameState[i][j] == gameState[i][comparisonPos])
+            {
+                gameState[i][comparisonPos] = gameState[i][j] * 2;
+                gameState[i][j] = 0;
+                comparisonPos--;
+                emptyPos--;
+            }
+            else if (gameState[i][emptyPos] != 0)
+            {
+                continue;
+            }
+            else
+            {
+                gameState[i][emptyPos] = gameState[i][j];
+                gameState[i][j] = 0;
+                emptyPos--;
             }
         }
     }
@@ -286,6 +323,10 @@ int main(int argc, char *args[])
                 {
                 case SDLK_LEFT:
                     moveLeft();
+                    break;
+                case SDLK_RIGHT:
+                    moveRight();
+                    break;
                 }
             }
             draw_board();

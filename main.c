@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <stdbool.h>
+#include "color_map.h"
 #include <SDL_ttf.h>
 #define SCREEN_WIDTH 640  // window height
 #define SCREEN_HEIGHT 480 // window widt
@@ -18,9 +19,16 @@ SDL_Renderer *renderer;    // The renderer SDL will use to draw to the screen
 
 // textures
 SDL_Texture *screen_texture;
-int gameState[4][4] = {{4, 0, 0, 0}, {2, 0, 0, 0}, {4, 0, 0, 0}, {0, 0, 0, 0}};
+int gameState[4][4] = {{4, 4, 0, 0}, {2, 0, 0, 0}, {4, 0, 0, 0}, {0, 0, 0, 0}};
 
-static void draw_text(char string[], SDL_Rect rect)
+char *convert_int_to_string(int num)
+{
+    char *str = malloc(5 * sizeof(char));
+    sprintf(str, "%d", num);
+    return str;
+}
+
+static void draw_text(int num, SDL_Rect rect)
 {
     TTF_Init();
 
@@ -31,15 +39,19 @@ static void draw_text(char string[], SDL_Rect rect)
         printf("TTF_Init: %s\n", TTF_GetError());
         return;
     }
-    SDL_Color black = {125, 125, 125};
+    SDL_Color font_color = {125, 125, 125};
+    char * string = convert_int_to_string(num);
     SDL_Surface *surfaceMessage;
+
     if (string[0] == '0')
     {
-        surfaceMessage = TTF_RenderText_Solid(Sans, "", black);
+        surfaceMessage = TTF_RenderText_Solid(Sans, "", font_color);
     }
     else
     {
-        surfaceMessage = TTF_RenderText_Solid(Sans, string, black);
+        int key = getKey(num) + 1;
+        SDL_Color font_color = {color_map[key][0], color_map[key][1], color_map[key][2]};
+        surfaceMessage = TTF_RenderText_Solid(Sans, string, font_color);
     }
 
     // now you can convert it into a texture
@@ -53,12 +65,6 @@ static void draw_text(char string[], SDL_Rect rect)
     SDL_DestroyTexture(Message);
 }
 
-char *convert_int_to_string(int num)
-{
-    char *str = malloc(5 * sizeof(char));
-    sprintf(str, "%d", num);
-    return str;
-}
 static void draw_tiles()
 {
     SDL_Rect tile;
@@ -72,13 +78,23 @@ static void draw_tiles()
 
         tile.h = 75;
         tile.w = 75;
-        Uint32 tileColor = SDL_MapRGB(screen->format, 238, 228, 218);
+        int key = getKey(gameState[yBuffer][xBuffer]);
+        // printf("The key is %d x is %d y is %d", key, gameState[yBuffer][xBuffer]);
+        Uint32 tileColor;
+        if (gameState[yBuffer][xBuffer] == 0)
+        {
+            tileColor = SDL_MapRGB(screen->format, 198, 188, 168);
+        }
+        else
+        {
+            tileColor = SDL_MapRGB(screen->format, color_map[key][0], color_map[key][1], color_map[key][2]);
+        }
         int z = SDL_FillRect(screen, &tile, tileColor);
 
         if (z != 0)
         {
 
-            printf("fill gradient faliled in func drawball()");
+            printf("fill gradient faliled in func draw_tiles()");
         }
         SDL_UpdateTexture(screen_texture, NULL, screen->pixels, screen->w * sizeof(Uint32));
         SDL_RenderCopy(renderer, screen_texture, NULL, NULL);
@@ -122,13 +138,13 @@ static void draw_numbers()
     {
         int xBuffer = i % 4;
         int yBuffer = i / 4;
-        SDL_Rect Message_rect;                                                              // create a rect
-        Message_rect.x = SCREEN_WIDTH / 2 - 175 + (75 * xBuffer) + (10 * (xBuffer + 1));    // controls the rect's x coordinate
-        Message_rect.y = (SCREEN_HEIGHT / 2 - 175) + (75 * yBuffer) + (10 * (yBuffer + 1)); // controls the rect's y coordinte
-        Message_rect.w = 75;                                                                // controls the width of the rect
-        Message_rect.h = 75;                                                                // controls the height of the rect
+        SDL_Rect Message_rect;                                                                     // create a rect
+        Message_rect.x = SCREEN_WIDTH / 2 - 175 + (75 * xBuffer) + (10 * (xBuffer + 1)) + 12.5;    // controls the rect's x coordinate
+        Message_rect.y = (SCREEN_HEIGHT / 2 - 175) + (75 * yBuffer) + (10 * (yBuffer + 1)) + 12.5; // controls the rect's y coordinte
+        Message_rect.w = 50;                                                                       // controls the width of the rect
+        Message_rect.h = 50;                                                                       // controls the height of the rect
 
-        draw_text(convert_int_to_string(gameState[yBuffer][xBuffer]), Message_rect);
+        draw_text(gameState[yBuffer][xBuffer], Message_rect);
     }
 }
 

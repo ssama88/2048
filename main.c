@@ -43,7 +43,7 @@ static void draw_gradient()
     }
 }
 
-static void draw_text()
+static void draw_text(char string[], SDL_Rect rect)
 {
     TTF_Init();
 
@@ -56,40 +56,50 @@ static void draw_text()
     }
     SDL_Color black = {125, 125, 125};
     SDL_Surface *surfaceMessage =
-        TTF_RenderText_Solid(Sans, "2048", black);
+        TTF_RenderText_Solid(Sans, string, black);
 
     // now you can convert it into a texture
     SDL_Texture *Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
 
-    SDL_Rect Message_rect; // create a rect
-    Message_rect.x = SCREEN_WIDTH / 2 - 175 + 10;    // controls the rect's x coordinate
-    Message_rect.y = SCREEN_HEIGHT / 2 - 175;    // controls the rect's y coordinte
-    Message_rect.w = 75;   // controls the width of the rect
-    Message_rect.h = 75;   // controls the height of the rect
-
-    Uint32 tileColor = SDL_MapRGB(screen->format, 255, 255, 255);
-
-    // SDL_FillRect(screen, &Message_rect, tileColor);
-    // (0,0) is on the top left of the window/screen,
-    // think a rect as the text's box,
-    // that way it would be very simple to understand
-
-    // Now since it's a texture, you have to put RenderCopy
-    // in your game loop area, the area where the whole code executes
-
     SDL_UpdateTexture(screen_texture, NULL, screen->pixels, screen->w * sizeof(Uint32));
 
-    // you put the renderer's name first, the Message,
-    // the crop size (you can ignore this if you don't want
-    // to dabble with cropping), and the rect which is the size
-    // and coordinate of your texture
-
-    SDL_RenderCopy(renderer, Message, NULL, &Message_rect);
+    SDL_RenderCopy(renderer, Message, NULL, &rect);
     // Don't forget to free your surface and texture
-    // SDL_FreeSurface(surfaceMessage);
-    // SDL_DestroyTexture(Message);
+    SDL_FreeSurface(surfaceMessage);
+    SDL_DestroyTexture(Message);
 }
 
+char *convert_int_to_string(int num)
+{
+    char *str = malloc(5 * sizeof(char));
+    sprintf(str, "%d", num);
+    return str;
+}
+static void draw_tiles()
+{
+    SDL_Rect tile;
+
+    for (int i = 0; i < 16; i++)
+    {
+        int xBuffer = i % 4;
+        int yBuffer = i / 4;
+        tile.x = (SCREEN_WIDTH / 2 - 175) + (75 * xBuffer) + (10 * (xBuffer + 1));
+        tile.y = (SCREEN_HEIGHT / 2 - 175) + (75 * yBuffer) + (10 * (yBuffer + 1));
+
+        tile.h = 75;
+        tile.w = 75;
+        Uint32 tileColor = SDL_MapRGB(screen->format, 238, 228, 218);
+        int z = SDL_FillRect(screen, &tile, tileColor);
+
+        if (z != 0)
+        {
+
+            printf("fill gradient faliled in func drawball()");
+        }
+        SDL_UpdateTexture(screen_texture, NULL, screen->pixels, screen->w * sizeof(Uint32));
+        SDL_RenderCopy(renderer, screen_texture, NULL, NULL);
+    }
+}
 static void draw_board()
 {
     SDL_Rect background;
@@ -116,27 +126,26 @@ static void draw_board()
 
         printf("fill gradient faliled in func drawball()");
     }
-    SDL_Rect tile;
+
+    SDL_UpdateTexture(screen_texture, NULL, screen->pixels, screen->w * sizeof(Uint32));
+    SDL_RenderCopy(renderer, screen_texture, NULL, NULL);
+}
+
+static void draw_numbers()
+{
 
     for (int i = 0; i < 16; i++)
     {
         int xBuffer = i % 4;
         int yBuffer = i / 4;
-        tile.x = board.x + (75 * xBuffer) + (10 * (xBuffer + 1));
-        tile.y = board.y + (75 * yBuffer) + (10 * (yBuffer + 1));
+        SDL_Rect Message_rect;                                                              // create a rect
+        Message_rect.x = SCREEN_WIDTH / 2 - 175 + (75 * xBuffer) + (10 * (xBuffer + 1));    // controls the rect's x coordinate
+        Message_rect.y = (SCREEN_HEIGHT / 2 - 175) + (75 * yBuffer) + (10 * (yBuffer + 1)); // controls the rect's y coordinte
+        Message_rect.w = 75;                                                                // controls the width of the rect
+        Message_rect.h = 75;                                                                // controls the height of the rect
 
-        tile.h = 75;
-        tile.w = 75;
-        Uint32 tileColor = SDL_MapRGB(screen->format, 238, 228, 218);
-        int z = SDL_FillRect(screen, &tile, tileColor);
-        if (z != 0)
-        {
-
-            printf("fill gradient faliled in func drawball()");
-        }
+        draw_text(convert_int_to_string(1024), Message_rect);
     }
-    SDL_UpdateTexture(screen_texture, NULL, screen->pixels, screen->w * sizeof(Uint32));
-    SDL_RenderCopy(renderer, screen_texture, NULL, NULL);
 }
 
 int init(int width, int height, int argc, char *args[])
@@ -235,9 +244,8 @@ int main(int argc, char *args[])
                 break;
             }
             draw_board();
-
-            draw_text();
-
+            draw_tiles();
+            draw_numbers();
             // draw to the display
             SDL_RenderPresent(renderer);
             SDL_Delay(50);

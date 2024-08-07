@@ -18,30 +18,7 @@ SDL_Renderer *renderer;    // The renderer SDL will use to draw to the screen
 
 // textures
 SDL_Texture *screen_texture;
-int gameState[4][4] = {{2, 0, 2, 0}, {2, 0, 0, 0}, {0, 0, 2, 0}, {2, 0, 0, 0}};
-
-static void draw_gradient()
-{
-    SDL_Rect src;
-    src.x = 0;
-    src.y = 0;
-    src.h = SCREEN_HEIGHT / 40;
-    int iterations = 0;
-    while (src.y <= SCREEN_HEIGHT)
-    {
-        Uint32 colorkey = SDL_MapRGB(screen->format, 140 - (iterations * 3), 200 - (iterations * 3), 220 - (iterations * 3));
-        src.w = SCREEN_WIDTH;
-        int r = SDL_FillRect(screen, &src, colorkey);
-
-        if (r != 0)
-        {
-
-            printf("fill gradient faliled in func drawball()");
-        }
-        src.y += SCREEN_HEIGHT / 40;
-        iterations++;
-    }
-}
+int gameState[4][4] = {{4, 0, 0, 0}, {2, 0, 0, 0}, {4, 0, 0, 0}, {0, 0, 0, 0}};
 
 static void draw_text(char string[], SDL_Rect rect)
 {
@@ -241,6 +218,7 @@ static void moveLeft()
             }
             else if (gameState[i][emptyPos] != 0) // if the number in the emptyPos doesn't equal the current number leave the current numberin it's current position
             {
+                comparisonPos++;
                 continue;
             }
             else
@@ -248,6 +226,7 @@ static void moveLeft()
                 gameState[i][emptyPos] = gameState[i][j];
                 gameState[i][j] = 0;
                 emptyPos++;
+                comparisonPos++;
             }
         }
     }
@@ -274,6 +253,7 @@ static void moveUp()
             }
             else if (gameState[emptyPos][i] != 0)
             {
+                comparisonPos++;
                 continue;
             }
             else
@@ -281,6 +261,7 @@ static void moveUp()
                 gameState[emptyPos][i] = gameState[j][i];
                 gameState[j][i] = 0;
                 emptyPos++;
+                comparisonPos++;
             }
         }
     }
@@ -307,6 +288,7 @@ static void moveDown()
             }
             else if (gameState[emptyPos][i] != 0)
             {
+                comparisonPos--;
                 continue;
             }
             else
@@ -314,6 +296,7 @@ static void moveDown()
                 gameState[emptyPos][i] = gameState[j][i];
                 gameState[j][i] = 0;
                 emptyPos--;
+                comparisonPos--;
             }
         }
     }
@@ -339,6 +322,7 @@ static void moveRight()
             }
             else if (gameState[i][emptyPos] != 0)
             {
+                comparisonPos--;
                 continue;
             }
             else
@@ -346,6 +330,7 @@ static void moveRight()
                 gameState[i][emptyPos] = gameState[i][j];
                 gameState[i][j] = 0;
                 emptyPos--;
+                comparisonPos--;
             }
         }
     }

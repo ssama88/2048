@@ -19,7 +19,7 @@ SDL_Renderer *renderer;    // The renderer SDL will use to draw to the screen
 
 // textures
 SDL_Texture *screen_texture;
-int gameState[4][4] = {{4, 0, 4, 2}, {0, 0, 0, 2}, {0, 0, 0, 4}, {0, 0, 0, 0}};
+int gameState[4][4] = {{4, 0, 0, 0}, {2, 0, 0, 0}, {2, 0, 0, 0}, {4, 0, 0, 0}};
 
 char *convert_int_to_string(int num)
 {
@@ -254,32 +254,34 @@ static void moveUp()
 {
     for (int i = 0; i < 4; i++)
     {
-        int comparisonPos = 0;
-        int emptyPos = 0;
+        int compare_pos = 0;
+        int empty_pos = 0;
+        if (gameState[0][i] != 0)
+        {
+            empty_pos = 1;
+        }
         for (int j = 1; j < 4; j++)
         {
             if (gameState[j][i] == 0)
             {
                 continue;
             }
-            else if (gameState[j][i] == gameState[comparisonPos][i])
+            else if (gameState[j][i] == gameState[compare_pos][i])
             {
-                gameState[comparisonPos][i] = gameState[j][i] * 2;
+                gameState[compare_pos][i] = gameState[j][i] * 2;
                 gameState[j][i] = 0;
-                comparisonPos++;
-                emptyPos++;
-            }
-            else if (gameState[emptyPos][i] != 0)
-            {
-                comparisonPos++;
-                continue;
+                compare_pos++;
             }
             else
             {
-                gameState[emptyPos][i] = gameState[j][i];
-                gameState[j][i] = 0;
-                emptyPos++;
-                comparisonPos++;
+                gameState[empty_pos][i] = gameState[j][i];
+                if (empty_pos != j)
+                {
+                    gameState[j][i] = 0;
+                }
+                compare_pos = empty_pos;
+
+                empty_pos++;
             }
         }
     }
@@ -289,32 +291,33 @@ static void moveDown()
 {
     for (int i = 0; i < 4; i++)
     {
-        int comparisonPos = 3;
-        int emptyPos = 3;
+        int compare_pos = 3;
+        int empty_pos = 3;
+        if (gameState[3][i] != 0)
+        {
+            empty_pos = 2;
+        }
         for (int j = 2; j >= 0; j--)
         {
             if (gameState[j][i] == 0)
             {
                 continue;
             }
-            else if (gameState[j][i] == gameState[comparisonPos][i])
+            else if (gameState[j][i] == gameState[compare_pos][i])
             {
-                gameState[comparisonPos][i] = gameState[j][i] * 2;
+                gameState[compare_pos][i] = gameState[j][i] * 2;
                 gameState[j][i] = 0;
-                comparisonPos--;
-                emptyPos--;
-            }
-            else if (gameState[emptyPos][i] != 0)
-            {
-                comparisonPos--;
-                continue;
+                compare_pos--;
             }
             else
             {
-                gameState[emptyPos][i] = gameState[j][i];
-                gameState[j][i] = 0;
-                emptyPos--;
-                comparisonPos--;
+                gameState[empty_pos][i] = gameState[j][i];
+                if (empty_pos != j)
+                {
+                    gameState[j][i] = 0;
+                }
+                compare_pos = empty_pos;
+                empty_pos--;
             }
         }
     }

@@ -19,7 +19,7 @@ SDL_Renderer *renderer;    // The renderer SDL will use to draw to the screen
 
 // textures
 SDL_Texture *screen_texture;
-int gameState[4][4] = {{4, 0, 0, 0}, {2, 0, 0, 0}, {2, 0, 0, 0}, {4, 0, 0, 0}};
+int gameState[4][4] = {{8, 0, 0, 0}, {2, 0, 0, 0}, {2, 0, 0, 0}, {4, 0, 0, 0}};
 
 char *convert_int_to_string(int num)
 {
@@ -357,6 +357,43 @@ static void moveRight()
         }
     }
 }
+
+static void create_random_tile()
+{
+    int rows[16] = {}, columns[16] = {};
+    int empty_spaces = 0;
+    for (int i = 0; i < 16; i++)
+    {
+        int xBuffer = i % 4;
+        int yBuffer = i / 4;
+        int value = gameState[yBuffer][xBuffer];
+        if (value == 0)
+        {
+            rows[empty_spaces] = yBuffer;
+            columns[empty_spaces] = xBuffer;
+            empty_spaces++;
+        }
+    }
+    int random_index = rand() % empty_spaces;
+    bool is_two = true;
+    int rng = rand() % 100;
+    if (rng % 3 == 0)
+    {
+        rng = false;
+    }
+
+    int tile_value;
+    if (is_two)
+    {
+        tile_value = 2;
+    }
+    else
+    {
+        tile_value = 4;
+    }
+
+    gameState[rows[random_index]][columns[random_index]] = tile_value;
+}
 int main(int argc, char *args[])
 {
     if (init(SCREEN_WIDTH, SCREEN_HEIGHT, argc, args) == 1)
@@ -395,15 +432,20 @@ int main(int argc, char *args[])
                 {
                 case SDLK_LEFT:
                     moveLeft();
+                    create_random_tile();
                     break;
                 case SDLK_RIGHT:
                     moveRight();
+                    create_random_tile();
                     break;
                 case SDLK_UP:
                     moveUp();
+                    create_random_tile();
                     break;
                 case SDLK_DOWN:
                     moveDown();
+                    create_random_tile();
+                    break;
                 }
             }
             draw_board();
